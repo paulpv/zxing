@@ -71,7 +71,7 @@ final class AmazonInfoRetriever extends SupplementalInfoRetriever {
                                    HttpHelper.ContentType.XML);
 
     String detailPageURL = null;
-    Collection<String> authors = new ArrayList<>();
+    Collection<String> authors = new ArrayList<String>();
     String title = null;
     String formattedNewPrice = null;
     String formattedUsedPrice = null;
@@ -147,7 +147,7 @@ final class AmazonInfoRetriever extends SupplementalInfoRetriever {
       return false;
     }
 
-    Collection<String> newTexts = new ArrayList<>();
+    Collection<String> newTexts = new ArrayList<String>();
     maybeAddText(title, newTexts);
     maybeAddTextSeries(authors, newTexts);
     if (formattedNewPrice != null) {
