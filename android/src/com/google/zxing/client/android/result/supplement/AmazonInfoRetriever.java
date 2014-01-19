@@ -83,58 +83,46 @@ final class AmazonInfoRetriever extends SupplementalInfoRetriever {
       boolean seenItem = false;
       boolean seenLowestNewPrice = false;
       boolean seenLowestUsedPrice = false;
-
-      boolean done = false;
-      for (int eventType = xpp.getEventType();
-           !done && eventType != XmlPullParser.END_DOCUMENT;
-           eventType = xpp.next()) {
+      
+      for (int eventType = xpp.getEventType(); eventType != XmlPullParser.END_DOCUMENT; eventType = xpp.next()) {
         if (eventType == XmlPullParser.START_TAG) {
           String name = xpp.getName();
-          switch (name) {
-            case "Item":
-              if (seenItem) {
-                done = true; // terminates loop
+          if ("Item".equals(name)) {
+            if (seenItem) {
+              break;
+            } else {
+              seenItem = true;
+            }
+          } else if ("DetailPageURL".equals(name)) {
+            assertTextNext(xpp);
+            detailPageURL = xpp.getText();
+          } else if ("Author".equals(name)) {
+            assertTextNext(xpp);
+            authors.add(xpp.getText());
+          } else if ("Title".equals(name)) {
+            assertTextNext(xpp);
+            title = xpp.getText();
+          } else if ("LowestNewPrice".equals(name)) {
+            seenLowestNewPrice = true;
+            seenLowestUsedPrice = false;
+          } else if ("LowestUsedPrice".equals(name)) {
+            seenLowestNewPrice = false;
+            seenLowestUsedPrice = true;
+          } else if ("FormattedPrice".equals(name)) {
+            if (seenLowestNewPrice || seenLowestUsedPrice) {
+              assertTextNext(xpp);
+              String theText = xpp.getText();
+              if (seenLowestNewPrice) {
+                formattedNewPrice = theText;
               } else {
-                seenItem = true;
+                formattedUsedPrice = theText;
               }
-              break;
-            case "DetailPageURL":
-              assertTextNext(xpp);
-              detailPageURL = xpp.getText();
-              break;
-            case "Author":
-              assertTextNext(xpp);
-              authors.add(xpp.getText());
-              break;
-            case "Title":
-              assertTextNext(xpp);
-              title = xpp.getText();
-              break;
-            case "LowestNewPrice":
-              seenLowestNewPrice = true;
-              seenLowestUsedPrice = false;
-              break;
-            case "LowestUsedPrice":
               seenLowestNewPrice = false;
-              seenLowestUsedPrice = true;
-              break;
-            case "FormattedPrice":
-              if (seenLowestNewPrice || seenLowestUsedPrice) {
-                assertTextNext(xpp);
-                String theText = xpp.getText();
-                if (seenLowestNewPrice) {
-                  formattedNewPrice = theText;
-                } else {
-                  formattedUsedPrice = theText;
-                }
-                seenLowestNewPrice = false;
-                seenLowestUsedPrice = false;
-              }
-              break;
-            case "Errors":
-              error = true;
-              done = true; // terminates loop
-              break;
+              seenLowestUsedPrice = false;
+            }
+          } else if ("Errors".equals(name)) {
+            error = true;
+            break;
           }
         }
       }
