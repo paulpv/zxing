@@ -2,3 +2,7 @@ bin/
 gen/
 target/
 *.iml
+bin/
+gen/
+libs/
+local.properties
